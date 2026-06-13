@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physiology Exam Prep — Muscle · Respiratory · Nervous</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1525; --panel:#161F33; --panel2:#1C2942; --ink:#EAF0FA; --muted:#94A3BE;
+  --line:#2A3852; --radius:16px;
+  --muscle:#E0506B; --resp:#3FA6C4; --nerve:#9B7BE0;
+  --muscle-soft:#3A1E27; --resp-soft:#10303A; --nerve-soft:#281F3D;
+  --ok:#34C77B; --ok-bg:#10301F; --bad:#F2607A; --bad-bg:#33161E;
+  --accent:#5CC8FF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Spline Sans",sans-serif;min-height:100vh;
+  background-image:radial-gradient(900px 500px at 80% -10%,#1a2falpha,transparent),radial-gradient(700px 400px at 0% 0%,#172033,transparent)}
+header{padding:34px 20px 24px;text-align:center;border-bottom:1px solid var(--line)}
+header h1{font-family:"Fraunces",serif;font-weight:700;font-size:clamp(1.6rem,4.5vw,2.5rem);letter-spacing:-.5px}
+header p{color:var(--muted);margin-top:8px;font-size:.95rem;max-width:620px;margin-inline:auto;line-height:1.6}
+nav{display:flex;justify-content:center;gap:6px;padding:14px 12px 0;flex-wrap:wrap}
+nav button{background:none;border:none;color:var(--muted);font-family:inherit;font-size:1.02rem;font-weight:600;padding:12px 22px;cursor:pointer;border-radius:10px 10px 0 0;border-bottom:3px solid transparent;transition:.18s}
+nav button.active{color:var(--ink);border-bottom-color:var(--accent);background:var(--panel)}
+nav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{max-width:880px;margin:0 auto;padding:26px 16px 70px}
+.hidden{display:none}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;justify-content:center}
+.chip{border:1.5px solid var(--line);background:var(--panel);border-radius:999px;padding:9px 18px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s}
+.chip:hover{border-color:var(--muted)}
+.chip[data-c="all"].on{background:var(--accent);border-color:var(--accent);color:#06243a}
+.chip[data-c="m"].on{background:var(--muscle);border-color:var(--muscle);color:#fff}
+.chip[data-c="r"].on{background:var(--resp);border-color:var(--resp);color:#04222b}
+.chip[data-c="n"].on{background:var(--nerve);border-color:var(--nerve);color:#fff}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:.86rem;color:var(--muted);margin-bottom:8px}
+.bar{height:7px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:22px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#9B7BE0);transition:width .35s}
+.qcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#fff;border-radius:7px;padding:4px 11px;margin-bottom:14px}
+.tag.m{background:var(--muscle)} .tag.r{background:var(--resp);color:#04222b} .tag.n{background:var(--nerve)}
+.qtext{font-size:1.18rem;font-weight:600;line-height:1.7;margin-bottom:20px}
+.opts{display:grid;gap:11px}
+.opt{text-align:left;background:var(--panel2);border:1.5px solid var(--line);border-radius:12px;padding:14px 17px;font-family:inherit;font-size:1rem;line-height:1.55;color:var(--ink);cursor:pointer;transition:.15s;display:flex;gap:12px;align-items:flex-start}
+.opt .lt{flex:0 0 24px;height:24px;border-radius:6px;background:var(--line);color:var(--muted);font-weight:700;font-size:.85rem;display:grid;place-items:center;margin-top:1px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.correct{background:var(--ok-bg);border-color:var(--ok);color:#9af0c4}
+.opt.correct .lt{background:var(--ok);color:#04210f}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad);color:#ffb9c6}
+.opt.wrong .lt{background:var(--bad);color:#fff}
+.answerline{display:none;margin-top:18px;border-radius:12px;padding:15px 17px;font-size:.97rem;line-height:1.7}
+.answerline.ok{display:block;background:var(--ok-bg);color:#9af0c4;font-weight:600}
+.answerline.bad{display:block;background:var(--bad-bg);color:#ffd0d8}
+.answerline.bad b{color:#ffb3c1}
+.expl{display:block;margin-top:10px;color:var(--muted);font-weight:400;font-size:.92rem}
+.actions{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:12px}
+.score{font-size:.9rem;color:var(--muted)}
+.nextbtn{background:var(--accent);color:#06243a;border:none;border-radius:11px;font-family:inherit;font-weight:700;font-size:1rem;padding:12px 30px;cursor:pointer;visibility:hidden}
+.nextbtn:hover{filter:brightness(1.08)}
+.result{text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:50px 24px}
+.result .big{font-family:"Fraunces",serif;font-size:3.2rem;font-weight:700;color:var(--accent)}
+.result p{color:var(--muted);margin:12px 0 26px;font-size:1.05rem}
+.restart{background:var(--accent);color:#06243a;border:none;border-radius:11px;font-family:inherit;font-weight:700;font-size:1.05rem;padding:13px 36px;cursor:pointer}
+/* summary */
+.sub{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:22px}
+.sub button{background:var(--panel);border:1.5px solid var(--line);color:var(--muted);font-family:inherit;font-weight:600;font-size:.9rem;padding:9px 16px;border-radius:999px;cursor:pointer}
+.sub button.on{color:var(--ink)}
+.sub button[data-s="m"].on{border-color:var(--muscle);color:var(--muscle)}
+.sub button[data-s="r"].on{border-color:var(--resp);color:var(--resp)}
+.sub button[data-s="n"].on{border-color:var(--nerve);color:var(--nerve)}
+.sec{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px;margin-bottom:20px}
+.sec h2{font-family:"Fraunces",serif;font-size:1.5rem;margin-bottom:6px}
+.sec.m h2{color:var(--muscle)} .sec.r h2{color:var(--resp)} .sec.n h2{color:var(--nerve)}
+.sec .lead{color:var(--muted);font-size:.95rem;margin-bottom:16px;line-height:1.6}
+.sec h3{font-size:1.05rem;margin:18px 0 8px;color:var(--ink)}
+.sec h3 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px;vertical-align:middle}
+.sec.m h3 .dot{background:var(--muscle)} .sec.r h3 .dot{background:var(--resp)} .sec.n h3 .dot{background:var(--nerve)}
+.sec ul{list-style:none;display:grid;gap:8px}
+.sec li{line-height:1.75;font-size:.97rem;padding-left:18px;position:relative;color:#D4DEEE}
+.sec li::before{content:"▸";position:absolute;left:0;color:var(--muted)}
+.sec b{color:#fff;font-weight:600}
+.kv{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0;display:grid;gap:7px}
+.kv .row{display:flex;justify-content:space-between;gap:14px;font-size:.94rem;border-bottom:1px dashed var(--line);padding-bottom:6px}
+.kv .row:last-child{border-bottom:none;padding-bottom:0}
+.kv .row span:first-child{color:var(--muted)}
+.kv .row span:last-child{color:#fff;font-weight:600;text-align:right}
+.hint{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:15px 18px;font-size:.93rem;line-height:1.7;margin-bottom:22px;color:#cdd8e8}
+@media(max-width:560px){.qtext{font-size:1.06rem}.actions{flex-direction:column;align-items:stretch}.nextbtn{width:100%}.result .big{font-size:2.5rem}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Physiology Exam Prep</h1>
+  <p>Full coverage of three chapters — Muscle Contraction · Respiratory System · Nervous System. Practice MCQs and a detailed summary.</p>
+</header>
+
+<nav>
+  <button id="navQuiz" class="active" onclick="showPage('quiz')">Quiz</button>
+  <button id="navSum" onclick="showPage('sum')">Summary</button>
+</nav>
+
+<main>
+<!-- ============ QUIZ ============ -->
+<section id="pageQuiz">
+  <div class="filters">
+    <button class="chip on" data-c="all" onclick="setFilter('all',this)">All</button>
+    <button class="chip" data-c="m" onclick="setFilter('m',this)">Muscle</button>
+    <button class="chip" data-c="r" onclick="setFilter('r',this)">Respiratory</button>
+    <button class="chip" data-c="n" onclick="setFilter('n',this)">Nervous</button>
+  </div>
+
+  <div id="quizArea">
+    <div class="meta"><span id="counter"></span><span id="liveScore"></span></div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="qcard">
+      <span id="qTag" class="tag"></span>
+      <div id="qText" class="qtext"></div>
+      <div id="opts" class="opts"></div>
+      <div id="answerLine" class="answerline"></div>
+      <div class="actions">
+        <span class="score" id="scoreNote"></span>
+        <button id="nextBtn" class="nextbtn" onclick="nextQ()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultArea" class="result hidden">
+    <div class="big" id="finalScore"></div>
+    <p id="finalMsg"></p>
+    <button class="restart" onclick="startQuiz()">Restart Quiz</button>
+  </div>
+</section>
+
+<!-- ============ SUMMARY ============ -->
+<section id="pageSum" class="hidden">
+  <div class="hint">💡 This summary covers everything in the three decks — definitions, mechanisms, key numbers, and comparisons most likely to appear on the exam. Use the buttons to jump between chapters.</div>
+  <div class="sub">
+    <button class="on" data-s="all" onclick="setSum('all',this)">All chapters</button>
+    <button data-s="m" onclick="setSum('m',this)">Muscle</button>
+    <button data-s="r" onclick="setSum('r',this)">Respiratory</button>
+    <button data-s="n" onclick="setSum('n',this)">Nervous</button>
+  </div>
+
+  <!-- MUSCLE -->
+  <div class="sec m" data-s="m">
+    <h2>Chapter 12 — Muscle Contraction</h2>
+    <p class="lead">Three muscle types, the structure of skeletal muscle down to the myofilament, the cross-bridge cycle, and how stimulation triggers contraction and relaxation.</p>
+
+    <h3><span class="dot"></span>Three muscle types</h3>
+    <ul>
+      <li><b>Skeletal:</b> striated, has sarcomeres, multinucleated, voluntary.</li>
+      <li><b>Cardiac:</b> has actin & myosin in sarcomeres, contracts by sliding-filament; cells joined by <b>gap junctions</b>, impulses spread through them so it behaves as <b>one unit</b> (functional syncytium).</li>
+      <li><b>Smooth:</b> <b>no sarcomeres</b>; myofilaments attach to <b>dense bodies</b> at the ends of the cell; has gap junctions. Contraction depends on a rise in free intracellular Ca²⁺; relaxes when Ca²⁺ falls.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Skeletal muscle structure</h3>
+    <ul>
+      <li>Muscle → hundreds of <b>muscle fibers</b> → threadlike <b>myofibrils</b> → <b>myofilaments</b> (thick & thin). Striations come from overlapping filaments.</li>
+      <li>The muscle cell = <b>muscle fiber</b>; plasma membrane with inward extensions (<b>T tubules</b>) = <b>sarcolemma</b>. Many nuclei & mitochondria (sarcosome).</li>
+      <li><b>Sarcoplasm</b> contains glycogen, ATP, phosphocreatine, glycolytic enzymes.</li>
+      <li><b>Sarcoplasmic reticulum (SR)</b> stores <b>calcium</b>.</li>
+    </ul>
+
+    <h3><span class="dot"></span>The sarcomere</h3>
+    <ul>
+      <li>Basic unit, connected end-to-end by <b>Z-lines</b>.</li>
+      <li><b>A band:</b> dark band. <b>I band:</b> light band between ends of myosin. <b>H zone:</b> area where the two ends of the thin filaments fail to meet. <b>Z-line:</b> separates sarcomeres.</li>
+      <li><b>Thick filament = myosin.</b> <b>Thin filament = actin + troponin + tropomyosin.</b></li>
+    </ul>
+
+    <h3><span class="dot"></span>Myofilament proteins</h3>
+    <ul>
+      <li><b>Actin:</b> forms cross bridges with myosin during contraction (has active/binding sites).</li>
+      <li><b>Tropomyosin:</b> sits in the groove of actin and <b>blocks myosin-binding sites</b>.</li>
+      <li><b>Troponin complex (3 polypeptides):</b> Troponin <b>T</b> binds tropomyosin; Troponin <b>I</b> inhibits actin–myosin interaction when Ca²⁺ is absent; Troponin <b>C</b> binds calcium.</li>
+      <li><b>Myosin head</b> contains <b>ATPase</b> and binds ATP.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Cross-bridge cycle / muscle contraction</h3>
+    <ul>
+      <li>Myosin splits ATP → <b>ADP + Pi</b> (both stay bound until myosin attaches to actin).</li>
+      <li><b>Pi released → power stroke</b> → pulls actin toward the center of the A band.</li>
+      <li><b>ADP released</b> as myosin binds a fresh ATP at the end of the power stroke.</li>
+      <li>Binding of a <b>new ATP</b> breaks the cross-bridge bond → cross bridges detach, ready to rebind.</li>
+      <li><b>Sliding filament theory:</b> filaments slide past each other; sarcomere shortens (thick/thin lengths don't change).</li>
+    </ul>
+
+    <h3><span class="dot"></span>Motor unit stimulation (excitation-contraction)</h3>
+    <ul>
+      <li>Action potential travels down a motor neuron to the <b>neuromuscular junction</b>.</li>
+      <li>Neuron releases <b>acetylcholine</b> into the synaptic cleft → binds receptors on the muscle fiber.</li>
+      <li>AP travels down the <b>T tubules</b> → depolarization opens <b>Ca²⁺ channels in the SR</b> → Ca²⁺ released.</li>
+      <li>Ca²⁺ binds <b>troponin</b> → shape change pushes <b>tropomyosin</b> off the active sites → exposes myosin-binding sites → cross bridges form (after ATP → ADP + Pi).</li>
+    </ul>
+
+    <h3><span class="dot"></span>Muscle relaxation</h3>
+    <ul>
+      <li>Nerve stimulation must <b>cease</b>.</li>
+      <li>Ca²⁺ pumped back into the SR by <b>Ca²⁺-ATPase</b>.</li>
+      <li>Ca²⁺ leaves troponin C → tropomyosin re-covers the binding sites → actin–myosin interaction ends → relaxation.</li>
+    </ul>
+  </div>
+
+  <!-- RESPIRATORY -->
+  <div class="sec r" data-s="r">
+    <h2>Chapter 16 — Respiratory System</h2>
+    <p class="lead">System zones, the four processes of respiration, the mechanics of ventilation (pressures, Boyle's law), lung properties, volumes & capacities, gas transport, and control of breathing.</p>
+
+    <h3><span class="dot"></span>Zones & functions</h3>
+    <ul>
+      <li><b>Conducting zone:</b> conducts air; warms, humidifies, filters and cleans it (mucus traps particles, cilia move mucus up). Air reaches the respiratory zone at <b>37 °C, saturated with water vapor</b>.</li>
+      <li><b>Respiratory zone:</b> site of gas exchange — respiratory bronchioles, alveolar sacs, alveoli.</li>
+      <li>Gas exchange occurs entirely by <b>diffusion</b> — rapid due to huge surface area + short diffusion distance.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Four processes of respiration</h3>
+    <ul>
+      <li><b>Pulmonary ventilation</b> (breathing): moves air in/out.</li>
+      <li><b>External respiration:</b> gas exchange lungs ↔ blood.</li>
+      <li><b>Transport</b> of gases by blood.</li>
+      <li><b>Internal respiration:</b> gas exchange blood ↔ tissues (= cellular respiration / O₂ utilization).</li>
+    </ul>
+
+    <h3><span class="dot"></span>Pleura & thoracic cavity</h3>
+    <ul>
+      <li>Each lung is in a closed <b>pleural sac</b>. <b>Parietal pleura</b> lines thoracic wall & diaphragm; <b>visceral pleura</b> attaches to the lung.</li>
+      <li>A thin layer of <b>intrapleural fluid</b> (a few mL) lubricates; its <b>surface tension resists separation</b>, so the lungs cling to the thorax wall.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Pressures & Boyle's law</h3>
+    <ul>
+      <li><b>Law #1:</b> air flows by bulk flow from high to low pressure.</li>
+      <li><b>Atmospheric pressure (Patm)</b> at sea level = <b>760 mmHg = 1 atm</b>. Zero respiratory pressure = atmospheric.</li>
+      <li><b>Intrapulmonary (Ppul):</b> pressure in alveoli; rises & falls with breathing and always equalizes with Patm.</li>
+      <li><b>Boyle's law:</b> at constant T, P varies inversely with V (P₁V₁ = P₂V₂). ↑lung volume → ↓pressure → air in; ↓volume → ↑pressure → air out.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Inspiration vs expiration</h3>
+    <ul>
+      <li><b>Inspiration = active.</b> Diaphragm contracts (↑volume vertically) + external intercostals raise ribs (↑volume laterally). Ppul drops <b>0 → −3 mmHg</b>; Patm &gt; Ppul → air in. ("Negative pressure breathing" = pulling air in.)</li>
+      <li><b>Quiet expiration = passive</b> (depends on lung elasticity/recoil). Ppul rises <b>−3 → +3 mmHg</b>; Ppul &gt; Patm → air out.</li>
+      <li><b>Forced expiration = active</b> (abdominal wall muscles). Forced inspiration uses accessory muscles.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Physical properties of the lungs</h3>
+    <ul>
+      <li><b>Compliance:</b> distensibility = ΔV / ΔP. Reduced by <b>pulmonary fibrosis</b>.</li>
+      <li><b>Elasticity:</b> tendency to return to original size (high <b>elastin</b> content); recoil drives expiration.</li>
+      <li><b>Surface tension:</b> fluid film in alveoli resists distension and tends to collapse the alveolus.</li>
+      <li><b>Surfactant:</b> secreted by <b>type II alveolar cells</b> (phospholipids + proteins); lowers surface tension, works better as alveoli shrink → prevents alveolar collapse during expiration.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Lung volumes & capacities (memorize numbers)</h3>
+    <div class="kv">
+      <div class="row"><span>Tidal volume (TV)</span><span>≈ 500 mL</span></div>
+      <div class="row"><span>Inspiratory reserve volume (IRV)</span><span>≈ 3000 mL</span></div>
+      <div class="row"><span>Expiratory reserve volume (ERV)</span><span>≈ 1200 mL</span></div>
+      <div class="row"><span>Residual volume (RV)</span><span>≈ 1200 mL</span></div>
+      <div class="row"><span>Functional residual capacity (RV+ERV)</span><span>≈ 2400 mL</span></div>
+      <div class="row"><span>Vital capacity (IRV+TV+ERV)</span><span>≈ 4700 mL</span></div>
+      <div class="row"><span>Minute volume (VE)</span><span>≈ 6–8 L/min</span></div>
+    </div>
+    <ul>
+      <li>Lung volumes assessed by <b>spirometry</b>. TLC depends on age, sex, height.</li>
+      <li><b>Anatomical dead space:</b> air that doesn't reach beyond terminal bronchioles (no gas exchange).</li>
+    </ul>
+
+    <h3><span class="dot"></span>Restrictive vs obstructive</h3>
+    <ul>
+      <li><b>Restrictive</b> (e.g. pulmonary fibrosis): normal airway resistance, impaired movement; <b>vital capacity reduced</b>.</li>
+      <li><b>Obstructive</b> (e.g. asthma, bronchitis): VC usually normal but expiration is slower/harder. Diagnosed by rate of expiration.</li>
+      <li><b>FEV1:</b> healthy people exhale ~<b>80%</b> of VC in 1 sec. <b>FEV1/FVC &lt; 70%</b> indicates obstruction (COPD/asthma).</li>
+    </ul>
+
+    <h3><span class="dot"></span>Gas partial pressures & transport</h3>
+    <div class="kv">
+      <div class="row"><span>Systemic veins / pulmonary arteries</span><span>PO₂ 40, PCO₂ 46 mmHg</span></div>
+      <div class="row"><span>Systemic arteries / pulmonary veins</span><span>PO₂ 100, PCO₂ 40 mmHg</span></div>
+    </div>
+    <ul>
+      <li><b>O₂ transport:</b> ~<b>98.5%</b> bound to hemoglobin, ~<b>1.5%</b> dissolved in plasma. Oxyhemoglobin = HbO₂; deoxyhemoglobin = HHb. Arterial O₂ saturation ≈ <b>97%</b>.</li>
+      <li><b>CO₂ transport (3 forms):</b> dissolved (~1/10), <b>carbaminohemoglobin</b> (~1/5), and <b>bicarbonate HCO₃⁻</b> (most). Carbonic acid forms mostly in RBCs.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Control of breathing & acid–base</h3>
+    <ul>
+      <li>Rhythm set by the <b>medulla oblongata</b>: <b>VRG</b> (rhythm generator, ~12–15 breaths/min) and <b>DRG</b> (integrates stretch & chemoreceptor input). <b>Pontine centers</b> smooth the transitions.</li>
+      <li>Regulated by feedback on arterial <b>PO₂, pH, PCO₂</b>. Medulla uses tissue-fluid <b>pH</b> as an index of blood CO₂. <b>Central chemoreceptors</b> in medulla; <b>peripheral</b> near aorta & carotid arteries.</li>
+      <li>Normal arterial pH <b>7.35–7.45</b> (avg 7.40); main buffer = <b>bicarbonate</b>. Lungs regulate CO₂, kidneys regulate HCO₃⁻.</li>
+      <li><b>Acidosis</b> &lt; 7.35, <b>Alkalosis</b> &gt; 7.45. Respiratory acidosis = hypoventilation (↑CO₂); respiratory alkalosis = hyperventilation.</li>
+    </ul>
+  </div>
+
+  <!-- NERVOUS -->
+  <div class="sec n" data-s="n">
+    <h2>Nervous System Physiology — Neuronal Signaling</h2>
+    <p class="lead">Organization of the nervous system, neuron structure & classification, membrane potentials, action potentials & propagation, synapses & neurotransmitters, and the autonomic nervous system.</p>
+
+    <h3><span class="dot"></span>Organization</h3>
+    <ul>
+      <li><b>CNS:</b> brain + spinal cord. <b>PNS:</b> <b>12 pairs cranial nerves</b> + <b>31 pairs spinal nerves</b>.</li>
+      <li>Two cell types: <b>Neurons</b> (conduct impulses) and <b>supporting/neuroglial cells</b> (feed, support, accelerate).</li>
+    </ul>
+
+    <h3><span class="dot"></span>Neuron structure & classification</h3>
+    <ul>
+      <li><b>Cell body (perikaryon):</b> integration/nutrition center. Bodies cluster in <b>nuclei</b> (CNS) and <b>ganglia</b> (PNS).</li>
+      <li><b>Dendrites:</b> receptive area, carry signals toward the cell body. <b>Axon:</b> conducting region, carries impulses away; AP starts at the <b>axon hillock</b>; terminals are the secretory region (release neurotransmitters).</li>
+      <li><b>Functional types:</b> <b>Sensory/afferent</b> (receptors → CNS), <b>Motor/efferent</b> (CNS → effectors), <b>Interneurons</b> (entirely within CNS, integrative).</li>
+    </ul>
+
+    <h3><span class="dot"></span>Membrane & resting potential</h3>
+    <ul>
+      <li><b>Resting membrane potential</b> ≈ <b>−70 mV</b> (inside negative); steady potential of a cell not signaling.</li>
+      <li>Changing membrane permeability to an ion changes the potential. Excitability/irritability = ability to produce & conduct potential changes.</li>
+      <li><b>Depolarization</b> (less negative, excitatory) ↑ chance of impulse; <b>hyperpolarization</b> (more negative, inhibitory) ↓ it. <b>Repolarization</b> = returning toward rest. <b>Overshoot</b> = inside becomes positive.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Graded vs action potentials</h3>
+    <ul>
+      <li><b>Graded potentials</b> (dendrites): short distance, vary in size, <b>decay with distance</b>, via <b>chemically-gated</b> channels.</li>
+      <li><b>Action potentials</b> (axons): long distance, <b>don't decay</b>, via <b>voltage-gated Na⁺ & K⁺</b> channels.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Action potential (all-or-none)</h3>
+    <ul>
+      <li>Must reach <b>threshold (~−55 / −50 mV)</b> to fire; below it, nothing.</li>
+      <li><b>Depolarization:</b> Na⁺ rushes in (Na⁺ permeability ~1000× resting). <b>Repolarization:</b> K⁺ moves out.</li>
+      <li>Peak doesn't exceed ~<b>+30 mV</b> because voltage-gated Na⁺ channels inactivate quickly and K⁺ channels open.</li>
+      <li><b>Na⁺/K⁺ pump</b> restores ion distribution (Na⁺ out, K⁺ in). Amplitude & duration are fixed.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Propagation</h3>
+    <ul>
+      <li><b>Simple propagation:</b> local currents depolarize the adjacent membrane forward (one direction); self-propagating at constant velocity.</li>
+      <li><b>Saltatory conduction:</b> in <b>myelinated</b> neurons the impulse jumps between <b>nodes of Ranvier</b> (which hold the voltage-gated Na⁺/K⁺ channels) — much faster.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Synapse & neurotransmitters</h3>
+    <ul>
+      <li><b>Synapse:</b> junction transferring info neuron→neuron or neuron→effector. Chemical synapses release neurotransmitters into the cleft.</li>
+      <li>NT action is short-lived; leftover NT is reabsorbed/recycled or broken down by enzymes.</li>
+      <li><b>Classes:</b> Acetylcholine, monoamines, amino acids, peptides, purines, gases & lipids.</li>
+      <li><b>Monoamines:</b> dopamine, epinephrine, norepinephrine, serotonin.</li>
+      <li><b>Excitatory amino acids:</b> glutamate & aspartate (major excitatory in CNS). <b>Inhibitory:</b> <b>GABA</b> (from glutamic acid) & <b>glycine</b>.</li>
+    </ul>
+
+    <h3><span class="dot"></span>PNS nerves</h3>
+    <ul>
+      <li><b>Cranial nerves (12 pairs):</b> Sensory = <b>1, 2, 8</b>; Motor = <b>3, 4, 6, 11, 12</b>; Mixed = <b>5, 7, 9, 10</b>.</li>
+      <li><b>Spinal nerves (31 pairs):</b> 8 cervical, 12 thoracic, 5 lumbar, 5 sacral, 1 coccygeal — <b>all mixed</b>.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Autonomic nervous system (ANS)</h3>
+    <ul>
+      <li>Controls involuntary effectors (cardiac & smooth muscle, glands). Uses a <b>2-neuron efferent pathway</b>: <b>preganglionic</b> (cell body in CNS) → ganglion → <b>postganglionic</b> → target.</li>
+      <li>Main ANS neurotransmitters: <b>acetylcholine (ACh)</b> and <b>norepinephrine (NE)</b>.</li>
+    </ul>
+
+    <h3><span class="dot"></span>Sympathetic vs Parasympathetic</h3>
+    <div class="kv">
+      <div class="row"><span>Theme</span><span>Sympathetic: fight-or-flight · Para: rest-and-digest</span></div>
+      <div class="row"><span>Preganglionic origin</span><span>Sym: thoracolumbar · Para: cranial & sacral</span></div>
+      <div class="row"><span>Ganglia</span><span>Sym: sympathetic chain · Para: terminal ganglia</span></div>
+      <div class="row"><span>Preganglionic length</span><span>Sym: shorter · Para: longer</span></div>
+      <div class="row"><span>Postganglionic NT</span><span>Sym: noradrenaline · Para: acetylcholine</span></div>
+      <div class="row"><span>Effector receptors</span><span>Sym: adrenergic · Para: cholinergic</span></div>
+    </div>
+    <ul>
+      <li><b>Sympathetic effects:</b> ↑heart rate, bronchiole dilation, ↑blood glucose; releases NE (postganglionic) + epinephrine from the <b>adrenal medulla</b> (a modified sympathetic ganglion).</li>
+      <li><b>Parasympathetic effects:</b> ↓heart rate, dilates visceral vessels, ↑digestion; uses ACh. Preganglionic fibers in cranial nerves <b>III, VII, IX, X</b>; the <b>vagus (X)</b> innervates heart, lungs, and most of the GI tract.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<script>
+const TOPICS={m:'Muscle',r:'Respiratory',n:'Nervous'};
+const Q=[
+// ===================== MUSCLE =====================
+{c:'m',q:'Which muscle type does NOT contain sarcomeres?',o:['Skeletal muscle','Cardiac muscle','Smooth muscle','All contain sarcomeres'],a:2,e:'Smooth muscle has no sarcomeres; its myofilaments attach to dense bodies.'},
+{c:'m',q:'In cardiac muscle, impulses spread from cell to cell through:',o:['T tubules','Gap junctions','The neuromuscular junction','Dense bodies'],a:1,e:'Gap junctions let cardiac muscle behave as one unit (functional syncytium).'},
+{c:'m',q:'Skeletal muscle is built up in which order?',o:['Myofibril → muscle fiber → myofilament','Muscle fiber → myofibril → myofilament','Myofilament → myofibril → muscle fiber','Sarcomere → muscle fiber → myofibril'],a:1,e:'Muscle fibers contain myofibrils, which are composed of myofilaments.'},
+{c:'m',q:'The plasma membrane of a muscle fiber with its inward T-tubule extensions is called the:',o:['Sarcoplasm','Sarcomere','Sarcolemma','Sarcoplasmic reticulum'],a:2,e:'Sarcolemma = muscle cell plasma membrane; T tubules are inward extensions of it.'},
+{c:'m',q:'Calcium needed for contraction is stored in the:',o:['Mitochondria','Sarcoplasmic reticulum','T tubules','Z-line'],a:1,e:'The SR stores Ca²⁺ and releases it on depolarization.'},
+{c:'m',q:'The thick filament is made of:',o:['Actin','Myosin','Tropomyosin','Troponin'],a:1,e:'Thick filament = myosin; thin filament = actin + troponin + tropomyosin.'},
+{c:'m',q:'Which proteins make up the thin filament?',o:['Myosin only','Actin, troponin, and tropomyosin','Actin and myosin','Troponin and myosin'],a:1,e:'Thin filament = actin + the regulatory proteins troponin and tropomyosin.'},
+{c:'m',q:'At rest, what blocks the myosin-binding sites on actin?',o:['Troponin C','Tropomyosin','The Z-line','Calcium'],a:1,e:'Tropomyosin lies in the actin groove and blocks the binding sites until moved by Ca²⁺/troponin.'},
+{c:'m',q:'Which subunit of the troponin complex binds calcium?',o:['Troponin T','Troponin I','Troponin C','Troponin M'],a:2,e:'Troponin C binds Ca²⁺; T binds tropomyosin; I inhibits actin–myosin interaction.'},
+{c:'m',q:'Which troponin subunit binds to tropomyosin?',o:['Troponin T','Troponin I','Troponin C','Troponin A'],a:0,e:'Troponin T (T for tropomyosin).'},
+{c:'m',q:'The "power stroke" in the cross-bridge cycle is initiated by the release of:',o:['ATP','ADP','Pi (inorganic phosphate)','Calcium'],a:2,e:'Pi release triggers the power stroke that pulls actin toward the center of the A band.'},
+{c:'m',q:'What causes the cross-bridge bond to break so myosin can detach?',o:['Release of ADP','Binding of a fresh ATP to myosin','Release of Ca²⁺','Re-cocking of the myosin head'],a:1,e:'Binding of a new ATP breaks the cross bridge; myosin detaches and is ready to rebind.'},
+{c:'m',q:'The enzyme located on the myosin head is:',o:['Phosphocreatine kinase','ATPase','Acetylcholinesterase','Carbonic anhydrase'],a:1,e:'Myosin head contains ATPase that splits ATP into ADP + Pi.'},
+{c:'m',q:'During the power stroke, actin filaments are pulled toward the:',o:['Z-line','Center of the A band','I band','T tubule'],a:1,e:'They are pulled toward the center of the A band (sarcomere center).'},
+{c:'m',q:'The H zone of the sarcomere is the region where:',o:['Z-lines overlap','The two ends of the thin filaments fail to meet','Myosin and actin fully overlap','T tubules enter the cell'],a:1,e:'H zone = area where thin filaments don\'t reach (only myosin present).'},
+{c:'m',q:'Which structure separates one sarcomere from the next?',o:['A band','H zone','Z-line','I band'],a:2,e:'The Z-line forms the boundary between adjacent sarcomeres.'},
+{c:'m',q:'The neurotransmitter released at the neuromuscular junction is:',o:['Norepinephrine','Acetylcholine','GABA','Dopamine'],a:1,e:'Motor neurons release acetylcholine into the synaptic cleft.'},
+{c:'m',q:'Depolarization of the T tubules directly causes:',o:['Release of acetylcholine','Opening of Ca²⁺ channels in the sarcoplasmic reticulum','Breakdown of ATP to ADP','Binding of myosin to actin'],a:1,e:'T-tubule depolarization opens SR Ca²⁺ channels, releasing stored Ca²⁺.'},
+{c:'m',q:'After Ca²⁺ is released, it binds to ____ to expose the binding sites.',o:['Myosin','Tropomyosin','Troponin','Actin active sites'],a:2,e:'Ca²⁺ binds troponin, which moves tropomyosin off the active sites.'},
+{c:'m',q:'For a muscle to relax, calcium is returned to the SR by:',o:['Simple diffusion','Na⁺/K⁺ pump','Ca²⁺-ATPase','Gap junctions'],a:2,e:'Ca²⁺-ATPase actively pumps Ca²⁺ back into the SR.'},
+{c:'m',q:'Which of the following is required for muscle relaxation?',o:['Continued nerve stimulation','Cessation of nerve stimulation','Increased cytoplasmic Ca²⁺','Pi release'],a:1,e:'Nerve stimulation must cease, then Ca²⁺ is pumped back into the SR.'},
+{c:'m',q:'Smooth muscle myofilaments are attached at the ends of the cell to:',o:['Z-lines','Dense bodies','T tubules','Sarcomeres'],a:1,e:'Smooth muscle lacks sarcomeres; filaments attach to dense bodies.'},
+{c:'m',q:'Smooth muscle contraction depends primarily on:',o:['A rise in free intracellular Ca²⁺','Acetylcholine binding only','ATP depletion','Sodium influx'],a:0,e:'Contraction depends on ↑ free intracellular Ca²⁺; relaxation when Ca²⁺ falls.'},
+{c:'m',q:'The sliding filament theory states that during contraction:',o:['Thick and thin filaments shorten','Filaments slide past each other and the sarcomere shortens','Z-lines lengthen','Actin is destroyed'],a:1,e:'Filament lengths stay the same; they slide and the sarcomere shortens.'},
+// ===================== RESPIRATORY =====================
+{c:'r',q:'The respiratory zone (site of gas exchange) includes all EXCEPT:',o:['Respiratory bronchioles','Alveolar sacs','Alveoli','Trachea'],a:3,e:'The trachea is part of the conducting zone, not the respiratory zone.'},
+{c:'r',q:'A main function of the conducting zone is to:',o:['Exchange O₂ and CO₂','Warm, humidify, filter and clean inspired air','Produce surfactant','Generate the breathing rhythm'],a:1,e:'It conducts and conditions the air before the respiratory zone.'},
+{c:'r',q:'When inspired air reaches the respiratory zone it is at:',o:['25 °C, dry','37 °C, saturated with water vapor','37 °C, dry','40 °C, saturated'],a:1,e:'Air is warmed to body temperature (37 °C) and fully humidified.'},
+{c:'r',q:'Which is NOT one of the four processes of respiration?',o:['Pulmonary ventilation','External respiration','Filtration of blood','Internal (cellular) respiration'],a:2,e:'The four processes are ventilation, external respiration, gas transport, and internal respiration.'},
+{c:'r',q:'The pleura attached to the thoracic wall and diaphragm is the:',o:['Visceral pleura','Parietal pleura','Intrapleural membrane','Mediastinal pleura'],a:1,e:'Parietal pleura lines the thoracic wall; visceral pleura covers the lung.'},
+{c:'r',q:'What keeps the lungs clinging to the thoracic wall?',o:['Muscular attachments','Surface tension of intrapleural fluid','Positive alveolar pressure','Cartilage rings'],a:1,e:'Surface tension of the thin intrapleural fluid resists separation.'},
+{c:'r',q:'Atmospheric pressure at sea level equals:',o:['460 mmHg','660 mmHg','760 mmHg','1000 mmHg'],a:2,e:'760 mmHg = 1 atm = zero respiratory pressure reference.'},
+{c:'r',q:'According to Boyle\'s law, if lung volume increases, alveolar pressure:',o:['Increases','Decreases','Stays the same','Becomes zero'],a:1,e:'P varies inversely with V; ↑volume → ↓pressure → air flows in.'},
+{c:'r',q:'Quiet inspiration is best described as:',o:['A passive process driven by recoil','An active process requiring muscle contraction','Driven by abdominal muscles','Independent of the diaphragm'],a:1,e:'Quiet inspiration is active — diaphragm + external intercostals contract.'},
+{c:'r',q:'During quiet inspiration, intrapulmonary pressure changes from:',o:['0 to +3 mmHg','−3 to +3 mmHg','0 to −3 mmHg','+3 to −3 mmHg'],a:2,e:'It falls from 0 to about −3 mmHg, so atmospheric > intrapulmonary and air enters.'},
+{c:'r',q:'Quiet (resting) expiration is:',o:['An active process using accessory muscles','A passive process depending on lung elasticity/recoil','Driven by diaphragm contraction','Impossible without abdominal muscles'],a:1,e:'Quiet expiration is passive — it relies on elastic recoil.'},
+{c:'r',q:'Forced expiration is produced mainly by contracting the:',o:['Diaphragm','External intercostals','Abdominal wall muscles','Pleural muscles'],a:2,e:'Forced expiration is active, using abdominal wall muscles.'},
+{c:'r',q:'Lung compliance is decreased by:',o:['Surfactant','Pulmonary fibrosis','Elastin','Increased surface area'],a:1,e:'Fibrosis (connective tissue infiltration) reduces distensibility/compliance.'},
+{c:'r',q:'Surfactant is secreted by:',o:['Type I alveolar cells','Type II alveolar cells','Goblet cells','Ciliated cells'],a:1,e:'Type II alveolar cells secrete surfactant (phospholipids + proteins).'},
+{c:'r',q:'The main function of surfactant is to:',o:['Increase surface tension','Lower surface tension and prevent alveolar collapse','Trap dust particles','Produce mucus'],a:1,e:'It lowers surface tension and stops alveoli collapsing during expiration.'},
+{c:'r',q:'Approximate tidal volume is:',o:['500 mL','1200 mL','3000 mL','4700 mL'],a:0,e:'Tidal volume ≈ 500 mL per quiet breath.'},
+{c:'r',q:'The inspiratory reserve volume is approximately:',o:['500 mL','1200 mL','3000 mL','2400 mL'],a:2,e:'IRV ≈ 3000 mL.'},
+{c:'r',q:'Vital capacity equals the sum of:',o:['TV + RV + ERV','IRV + TV + ERV','IRV + TV + RV','TV + FRC'],a:1,e:'VC = IRV + TV + ERV = 3000 + 500 + 1200 = 4700 mL.'},
+{c:'r',q:'The volume of air that cannot be expired even after maximal expiration is the:',o:['Tidal volume','Residual volume','Vital capacity','Functional residual capacity'],a:1,e:'Residual volume ≈ 1200 mL always remains in the lungs.'},
+{c:'r',q:'Functional residual capacity is the sum of:',o:['IRV + TV','RV + ERV','TV + ERV','IRV + ERV'],a:1,e:'FRC = RV + ERV ≈ 2400 mL (air left after a resting tidal exhalation).'},
+{c:'r',q:'Lung volumes are measured using:',o:['Spirometry','Electrocardiography','Pulse oximetry alone','Auscultation'],a:0,e:'Pulmonary function tests use spirometry.'},
+{c:'r',q:'In restrictive lung disease (e.g. pulmonary fibrosis), vital capacity is:',o:['Increased','Normal','Reduced below normal','Zero'],a:2,e:'Restrictive disorders reduce VC; obstructive disorders usually keep VC normal.'},
+{c:'r',q:'A FEV1/FVC ratio below which value indicates an obstructive disorder?',o:['90%','80%','70%','50%'],a:2,e:'FEV1/FVC < 70% indicates obstruction (asthma, COPD, bronchitis).'},
+{c:'r',q:'Healthy individuals can exhale about what % of vital capacity in 1 second (FEV1)?',o:['50%','70%','80%','100%'],a:2,e:'Roughly 80% of VC is expired in the first second.'},
+{c:'r',q:'Most oxygen is transported in the blood:',o:['Dissolved in plasma','Bound to hemoglobin (~98.5%)','As bicarbonate','As carbaminohemoglobin'],a:1,e:'~98.5% bound to Hb; only ~1.5% dissolved in plasma.'},
+{c:'r',q:'Most carbon dioxide is carried in the blood as:',o:['Dissolved CO₂','Carbaminohemoglobin','Bicarbonate ion (HCO₃⁻)','Carboxyhemoglobin'],a:2,e:'Most CO₂ travels as bicarbonate; smaller amounts dissolved or as carbaminohemoglobin.'},
+{c:'r',q:'PO₂ and PCO₂ of blood in the systemic arteries are approximately:',o:['PO₂ 40, PCO₂ 46','PO₂ 100, PCO₂ 40','PO₂ 46, PCO₂ 100','PO₂ 40, PCO₂ 40'],a:1,e:'After gas exchange: arterial PO₂ ≈ 100 mmHg, PCO₂ ≈ 40 mmHg.'},
+{c:'r',q:'The basic respiratory rhythm is generated in the:',o:['Cerebral cortex','Medulla oblongata','Cerebellum','Hypothalamus'],a:1,e:'The medulla oblongata (VRG) sets the automatic breathing rhythm.'},
+{c:'r',q:'Which center is the rhythm-generating and integrative center for breathing?',o:['Dorsal respiratory group (DRG)','Ventral respiratory group (VRG)','Pontine center','Carotid body'],a:1,e:'The VRG generates the rhythm (~12–15 breaths/min); the DRG integrates input.'},
+{c:'r',q:'Central chemoreceptors are located in the:',o:['Carotid arteries','Aorta','Medulla oblongata','Lungs'],a:2,e:'Central chemoreceptors are in the medulla; peripheral ones are near the aorta & carotids.'},
+{c:'r',q:'Normal arterial blood plasma pH range is:',o:['6.8–7.2','7.35–7.45','7.5–7.8','7.0–7.3'],a:1,e:'Normal pH 7.35–7.45, average 7.40; main buffer is bicarbonate.'},
+{c:'r',q:'Respiratory acidosis is caused by:',o:['Hyperventilation','Hypoventilation (CO₂ retention)','Excess bicarbonate','Loss of CO₂'],a:1,e:'Hypoventilation raises plasma CO₂/carbonic acid → acidosis (pH < 7.35).'},
+{c:'r',q:'Which organs regulate blood pH, and what does each control?',o:['Lungs control HCO₃⁻; kidneys control CO₂','Lungs control CO₂; kidneys control HCO₃⁻','Both control CO₂ only','Both control HCO₃⁻ only'],a:1,e:'Lungs regulate CO₂; kidneys regulate bicarbonate.'},
+// ===================== NERVOUS =====================
+{c:'n',q:'The central nervous system (CNS) consists of:',o:['Brain and cranial nerves','Brain and spinal cord','Spinal cord and spinal nerves','Cranial and spinal nerves'],a:1,e:'CNS = brain + spinal cord; the PNS contains the nerves.'},
+{c:'n',q:'How many pairs of cranial nerves and spinal nerves are there?',o:['12 cranial, 31 spinal','31 cranial, 12 spinal','10 cranial, 30 spinal','12 cranial, 12 spinal'],a:0,e:'12 pairs of cranial nerves and 31 pairs of spinal nerves.'},
+{c:'n',q:'Which part of the neuron conducts impulses AWAY from the cell body?',o:['Dendrite','Axon','Perikaryon','Nucleus'],a:1,e:'The axon is the conducting region carrying impulses away from the cell body.'},
+{c:'n',q:'Neuron cell bodies clustered in the PNS are called:',o:['Nuclei','Ganglia','Nerves','Tracts'],a:1,e:'In the PNS they form ganglia; in the CNS they form nuclei.'},
+{c:'n',q:'Afferent (sensory) neurons conduct impulses:',o:['Out of the CNS to effectors','From sensory receptors into the CNS','Only within the CNS','Between two muscles'],a:1,e:'Afferent = sensory = receptors → CNS. Efferent = motor = CNS → effectors.'},
+{c:'n',q:'Interneurons (association neurons) are located:',o:['Entirely within the CNS','Only in the PNS','In ganglia','At the neuromuscular junction'],a:0,e:'Interneurons lie entirely within the CNS and serve an integrative role.'},
+{c:'n',q:'A typical resting membrane potential is about:',o:['0 mV','−70 mV','+30 mV','−30 mV'],a:1,e:'≈ −70 mV, with the inside negative relative to outside.'},
+{c:'n',q:'Hyperpolarization of a neuron is:',o:['Excitatory, increases impulse probability','Inhibitory, decreases impulse probability','The same as depolarization','A reversal of polarity'],a:1,e:'Hyperpolarization (more negative) is inhibitory; depolarization is excitatory.'},
+{c:'n',q:'"Overshoot" refers to:',o:['Return toward resting potential','The inside of the cell becoming positive relative to outside','Failure to reach threshold','Closing of K⁺ channels'],a:1,e:'Overshoot = reversal of polarity, inside becomes positive.'},
+{c:'n',q:'Graded potentials differ from action potentials because they:',o:['Do not decay with distance','Decay with distance and vary in size','Occur only in axons','Are all-or-none'],a:1,e:'Graded potentials vary in size and decay with distance (dendrites; chemically-gated channels).'},
+{c:'n',q:'Action potentials are mediated by which channels?',o:['Chemically-gated channels','Voltage-gated Na⁺ and K⁺ channels','Leak channels only','Mechanically-gated channels'],a:1,e:'APs use voltage-gated Na⁺ and K⁺ channels along the axon.'},
+{c:'n',q:'During the depolarization phase of an action potential:',o:['K⁺ moves out of the cell','Na⁺ moves into the cell','Ca²⁺ enters the SR','Cl⁻ moves in'],a:1,e:'Na⁺ rushes in (permeability ~1000× that of rest), making the inside positive.'},
+{c:'n',q:'The repolarization phase is caused by:',o:['Na⁺ influx','K⁺ moving out of the cell','Ca²⁺ release','ATP binding'],a:1,e:'K⁺ exits, returning the membrane toward negative inside.'},
+{c:'n',q:'The action potential is described as "all-or-none" because:',o:['It always varies in size','Once threshold is reached, a maximal response occurs','It decays with distance','It can be partially generated'],a:1,e:'Below threshold nothing fires; at threshold a full, fixed-amplitude AP occurs.'},
+{c:'n',q:'AP amplitude does not exceed about +30 mV because:',o:['The Na⁺/K⁺ pump stops','Voltage-gated Na⁺ channels inactivate and K⁺ channels open','Threshold is too high','Chloride enters'],a:1,e:'Na⁺ channels inactivate quickly and K⁺ channels open, capping the peak.'},
+{c:'n',q:'Saltatory conduction occurs in myelinated neurons because the impulse:',o:['Travels continuously along the whole membrane','Jumps between nodes of Ranvier','Moves backward then forward','Decays at each node'],a:1,e:'The impulse jumps node-to-node (Ranvier), which is much faster than simple propagation.'},
+{c:'n',q:'Voltage-gated Na⁺ and K⁺ channels in a myelinated axon are concentrated at the:',o:['Myelin sheath','Nodes of Ranvier','Axon hillock only','Dendrites'],a:1,e:'APs occur only at the nodes, where the channels are located.'},
+{c:'n',q:'A synapse is best defined as:',o:['A bundle of axons','A junction transferring information between a neuron and another cell','The myelin covering of an axon','A cluster of cell bodies'],a:1,e:'A synapse mediates information transfer from one neuron to another or to an effector.'},
+{c:'n',q:'Which of the following are the two INHIBITORY amino acid neurotransmitters in the CNS?',o:['Glutamate and aspartate','GABA and glycine','Dopamine and serotonin','ACh and norepinephrine'],a:1,e:'GABA (from glutamic acid) and glycine are the inhibitory CNS amino acids.'},
+{c:'n',q:'Which are the major EXCITATORY amino acid neurotransmitters in the CNS?',o:['GABA and glycine','Glutamic acid and aspartic acid','Epinephrine and dopamine','Serotonin and glycine'],a:1,e:'Glutamate and aspartate are the major excitatory neurotransmitters.'},
+{c:'n',q:'Which of the following is a monoamine neurotransmitter?',o:['Glycine','Dopamine','GABA','Acetylcholine'],a:1,e:'Monoamines include dopamine, epinephrine, norepinephrine and serotonin.'},
+{c:'n',q:'Which cranial nerves are purely SENSORY?',o:['3, 4, 6','1, 2, 8','5, 7, 9, 10','11, 12'],a:1,e:'Sensory: I, II, VIII. Motor: 3,4,6,11,12. Mixed: 5,7,9,10.'},
+{c:'n',q:'All 31 pairs of spinal nerves are:',o:['Purely sensory','Purely motor','Mixed nerves','Autonomic only'],a:2,e:'All spinal nerves are mixed (both sensory and motor fibers).'},
+{c:'n',q:'The autonomic nervous system efferent pathway uses:',o:['One neuron','Two neurons (preganglionic + postganglionic)','Three neurons','No synapse'],a:1,e:'Pre­ganglionic (cell body in CNS) synapses with a postganglionic neuron in a ganglion.'},
+{c:'n',q:'The sympathetic division is associated with:',o:['Rest and digest','Fight or flight','Sleep regulation','Digestion only'],a:1,e:'Sympathetic = fight-or-flight; parasympathetic = rest-and-digest.'},
+{c:'n',q:'Sympathetic preganglionic neurons originate from which region of the spinal cord?',o:['Cranial and sacral','Thoracolumbar','Cervical only','Coccygeal'],a:1,e:'Sympathetic = thoracolumbar; parasympathetic = craniosacral.'},
+{c:'n',q:'The postganglionic neurotransmitter of the sympathetic division is mainly:',o:['Acetylcholine','Noradrenaline (norepinephrine)','GABA','Glycine'],a:1,e:'Sympathetic postganglionic NT is mainly noradrenaline; parasympathetic uses ACh.'},
+{c:'n',q:'The adrenal medulla is best described as:',o:['A parasympathetic ganglion','A modified sympathetic ganglion secreting epinephrine and NE','Part of the CNS','A cranial nerve nucleus'],a:1,e:'It is a modified sympathetic ganglion releasing epinephrine and norepinephrine.'},
+{c:'n',q:'Which cranial nerve carries parasympathetic fibers to the heart, lungs and most of the GI tract?',o:['Trigeminal (V)','Facial (VII)','Vagus (X)','Hypoglossal (XII)'],a:2,e:'The vagus (X) innervates heart, lungs, and the upper GI tract.'},
+{c:'n',q:'Typical parasympathetic effects include:',o:['Increased heart rate and bronchiole dilation','Decreased heart rate and increased digestive activity','Increased blood glucose','Pupil dilation and sweating'],a:1,e:'Parasympathetic (rest-and-digest): ↓HR, dilates visceral vessels, ↑digestion.'},
+{c:'n',q:'The two major neurotransmitters of the autonomic nervous system are:',o:['Dopamine and serotonin','Acetylcholine and norepinephrine','GABA and glutamate','Glycine and aspartate'],a:1,e:'ANS mainly uses ACh and norepinephrine.'},
+];
+
+let pool=[],idx=0,score=0,filter='all';
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function setFilter(f,btn){filter=f;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));btn.classList.add('on');startQuiz();}
+function startQuiz(){
+  pool=shuffle(Q.filter(q=>filter==='all'||q.c===filter).slice());
+  idx=0;score=0;
+  document.getElementById('resultArea').classList.add('hidden');
+  document.getElementById('quizArea').classList.remove('hidden');
+  renderQ();
+}
+function renderQ(){
+  const q=pool[idx];
+  document.getElementById('counter').textContent='Question '+(idx+1)+' of '+pool.length;
+  document.getElementById('liveScore').textContent='Score: '+score+' / '+idx;
+  document.getElementById('barFill').style.width=(idx/pool.length*100)+'%';
+  const tag=document.getElementById('qTag');tag.textContent=TOPICS[q.c];tag.className='tag '+q.c;
+  document.getElementById('qText').textContent=q.q;
+  const al=document.getElementById('answerLine');al.className='answerline';al.innerHTML='';
+  document.getElementById('nextBtn').style.visibility='hidden';
+  document.getElementById('scoreNote').textContent='';
+  const order=shuffle(q.o.map((_,i)=>i));
+  const letters=['A','B','C','D','E'];
+  const box=document.getElementById('opts');box.innerHTML='';
+  order.forEach((oi,pos)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML='<span class="lt">'+letters[pos]+'</span><span>'+q.o[oi]+'</span>';
+    b.onclick=()=>answer(b,oi===q.a,q.o[q.a],q.e);
+    box.appendChild(b);
+  });
+}
+function answer(btn,isCorrect,correctText,expl){
+  document.querySelectorAll('.opt').forEach(o=>{
+    o.disabled=true;
+    if(o.querySelector('span:last-child').textContent===correctText)o.classList.add('correct');
+  });
+  const al=document.getElementById('answerLine');
+  if(isCorrect){score++;al.className='answerline ok';al.innerHTML='✔ Correct!<span class="expl">'+expl+'</span>';}
+  else{btn.classList.add('wrong');al.className='answerline bad';al.innerHTML='✘ Incorrect. <b>Correct answer:</b> '+correctText+'<span class="expl">'+expl+'</span>';}
+  document.getElementById('liveScore').textContent='Score: '+score+' / '+(idx+1);
+  const nb=document.getElementById('nextBtn');nb.style.visibility='visible';
+  nb.textContent=(idx===pool.length-1)?'See results':'Next →';
+}
+function nextQ(){idx++;if(idx>=pool.length){showResult();return;}renderQ();}
+function showResult(){
+  document.getElementById('quizArea').classList.add('hidden');
+  const r=document.getElementById('resultArea');r.classList.remove('hidden');
+  document.getElementById('finalScore').textContent=score+' / '+pool.length;
+  const pct=score/pool.length;
+  let msg=pct>=0.9?'Excellent — you\'re exam ready! 🎉':pct>=0.75?'Great work. Review the few you missed in the Summary.':pct>=0.5?'Solid start — read the Summary then try again.':'Keep going — study the Summary tab, then retake.';
+  document.getElementById('finalMsg').textContent=msg;
+  document.getElementById('barFill').style.width='100%';
+}
+function showPage(p){
+  document.getElementById('pageQuiz').classList.toggle('hidden',p!=='quiz');
+  document.getElementById('pageSum').classList.toggle('hidden',p!=='sum');
+  document.getElementById('navQuiz').classList.toggle('active',p==='quiz');
+  document.getElementById('navSum').classList.toggle('active',p==='sum');
+}
+function setSum(s,btn){
+  document.querySelectorAll('.sub button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  document.querySelectorAll('.sec').forEach(sec=>{
+    sec.style.display=(s==='all'||sec.dataset.s===s)?'block':'none';
+  });
+}
+startQuiz();
+</script>
+</body>
+</html>
